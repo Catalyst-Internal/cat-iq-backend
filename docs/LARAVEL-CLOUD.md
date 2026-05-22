@@ -12,7 +12,7 @@ Suggested order under **Settings → Deployments → Deploy commands** (or Build
 ## Gate 3 marketing API (Nuxt)
 
 - **Public routes:** `/api/v1/*` (Sanctum SPA session), `/sanctum/csrf-cookie`, `/login`, `/logout`
-- **CORS:** set `FRONTEND_URL` to the Vercel host (preview + production). `SANCTUM_STATEFUL_DOMAINS` must include the Nuxt origin without scheme.
+- **CORS:** set `CORS_ALLOWED_ORIGINS` to comma-separated Vercel origins (preview + production). `FRONTEND_URL` remains the Sanctum fallback when `CORS_ALLOWED_ORIGINS` is unset. `SANCTUM_STATEFUL_DOMAINS` must include the Nuxt origin without scheme.
 - **Cache refresh:** `RefreshGitHubCacheJob` runs on the scheduler (`routes/console.php`) — ensure the queue worker is enabled.
 - **Statamic CP:** `/cp` (after `STATAMIC_LICENSE_KEY` is set). Evergreen content falls back to `config/catiq-content.php` until entries are seeded.
 

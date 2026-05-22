@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\RefreshGitHubCacheJob;
 use App\Jobs\SyncRoadmapJob;
 use App\Jobs\SyncStatusJob;
 use App\Jobs\SyncWikiJob;
@@ -62,7 +63,7 @@ class GitHubWebhookTest extends TestCase
         $this->postGitHubWebhookRaw($body, [
             'X-GitHub-Event' => 'milestone',
             'X-Hub-Signature-256' => $signature,
-        ])->assertOk();
+        ])->assertOk()->assertJson(['status' => 'queued']);
 
         $this->assertDatabaseHas('repositories', [
             'github_id' => 4242,
@@ -70,6 +71,7 @@ class GitHubWebhookTest extends TestCase
         ]);
 
         Bus::assertDispatched(SyncStatusJob::class);
+        Bus::assertDispatched(RefreshGitHubCacheJob::class);
 
         $this->assertDatabaseHas('github_webhook_events', [
             'event' => 'milestone',
@@ -88,8 +90,9 @@ class GitHubWebhookTest extends TestCase
         $this->postGitHubWebhookRaw($body, [
             'X-GitHub-Event' => 'ping',
             'X-Hub-Signature-256' => $signature,
-        ])->assertOk();
+        ])->assertOk()->assertJson(['status' => 'queued']);
 
+        Bus::assertDispatched(RefreshGitHubCacheJob::class);
         Bus::assertNotDispatched(SyncStatusJob::class);
         Bus::assertNotDispatched(SyncWikiJob::class);
         Bus::assertNotDispatched(SyncRoadmapJob::class);
