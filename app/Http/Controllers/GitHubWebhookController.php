@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RefreshGitHubCacheJob;
 use App\Jobs\SyncRoadmapJob;
 use App\Jobs\SyncStatusJob;
 use App\Jobs\SyncWikiJob;
@@ -33,7 +34,9 @@ class GitHubWebhookController extends Controller
                 : null,
         ]);
 
-        return response()->json(['ok' => true]);
+        RefreshGitHubCacheJob::dispatch();
+
+        return response()->json(['status' => 'queued']);
     }
 
     /**
